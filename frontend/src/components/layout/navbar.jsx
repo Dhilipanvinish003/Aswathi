@@ -1,22 +1,23 @@
 import React from "react";
-import {NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 const Navbar = () => {
 
   const navItems = [
     { label: "HOME", path: "/" },
-    { label: "GENERAL", path: "/General" },
+    { label: "GENERAL", path: "/general" },
     { label: "PURCHASE", path: "/purchase" },
     { label: "PRODUCTIONS", path: "/production" },
-    { label: "SALES", path: "/sales"},
+    { label: "SALES", path: "/sales" },
     { label: "SERVICE", path: "/services" },
     { label: "REPORTS", path: "/reports" },
     { label: "CONTACT", path: "/report" },
     { label: "EXIT", path: "/report" },
   ];
 
+
   return (
-<header className="fixed top-0 left-0 w-full flex items-center justify-between px-7 h-16 bg-white shadow-lg z-[999]">
-      
+
+    <div className="w-full flex items-center justify-between px-7 h-16 bg-white shadow-lg" style={{ paddingRight: 'calc(1.75rem + var(--scrollbar-compensation, 0px))' }}>
       <div>
         <h3 className="text-lg font-[Arial] text-[24px] text-[#155DFC]  leading-[36px] font-[700]">Admin Software</h3>
       </div>
@@ -27,10 +28,10 @@ const Navbar = () => {
             <li key={i}>
               <NavLink
                 to={item.path}
-                end={item.path ==="/"}
-                className={({isActive}) =>
-                 `font-[Arial] ${isActive ? "bg-[#155DFC] p-[8px] px-[14px] rounded-lg text-white shadow-md"
-                  :"text-[#4A5565] hover:text-[#155DFC]"}`}>
+                end={item.path === "/"}
+                className={({ isActive }) =>
+                  `font-[Arial] ${isActive ? "bg-[#155DFC] p-[8px] px-[14px] rounded-lg text-white shadow-md"
+                    : "text-[#4A5565] hover:text-[#155DFC]"}`}>
                 {item.label}
               </NavLink>
             </li>
@@ -38,7 +39,7 @@ const Navbar = () => {
         </ul>
       </nav>
 
-    </header>
+    </div>
   );
 };
 

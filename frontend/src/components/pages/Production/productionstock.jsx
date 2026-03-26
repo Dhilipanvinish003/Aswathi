@@ -85,7 +85,7 @@ const ProductionStock = () => {
     ];
 
     return (
-        <div className="pb-10 min-h-screen">
+        <div className="pb-10 p-10 min-h-screen">
             {/* Header Section */}
             <div className="mb-10">
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">

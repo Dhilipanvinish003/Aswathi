@@ -1,7 +1,8 @@
 import React from "react";
-import { ShoppingCart, FileText, CreditCard, Package } from "lucide-react";
-
+import { ShoppingCart, FileText, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const PurchaseCard = ({ title, description, icon: Icon, bgColor, iconColor, onClick }) => {
+
     return (
         <div
             onClick={onClick}
@@ -19,16 +20,18 @@ const PurchaseCard = ({ title, description, icon: Icon, bgColor, iconColor, onCl
         </div>
     );
 };
-
 const Purchase = () => {
+
+    const navigate = useNavigate();
     const purchaseOptions = [
         {
-            title: "Spare Purchase",
+            title: "Stock",
             description: "Record component purchases",
             icon: ShoppingCart,
             bgColor: "bg-blue-50",
             iconColor: "text-blue-600",
-            action: () => console.log("Navigating to Spare Purchase"),
+            action: () => navigate("/purchase/stock"),
+
         },
         {
             title: "Supplier Bills",
@@ -36,15 +39,7 @@ const Purchase = () => {
             icon: FileText,
             bgColor: "bg-purple-50",
             iconColor: "text-purple-600",
-            action: () => console.log("Navigating to Supplier Bills"),
-        },
-        {
-            title: "Bill-wise Payments",
-            description: "Record supplier payments",
-            icon: CreditCard,
-            bgColor: "bg-green-50",
-            iconColor: "text-green-600",
-            action: () => console.log("Navigating to Bill-wise Payments"),
+            action: () => navigate("/purchase/bills"),
         },
         {
             title: "Purchase Reports",
@@ -52,12 +47,12 @@ const Purchase = () => {
             icon: Package,
             bgColor: "bg-orange-50",
             iconColor: "text-orange-600",
-            action: () => console.log("Navigating to Purchase Reports"),
+            action: () => navigate("/purchase/reportss"),
         },
     ];
 
     return (
-        <div className="min-h-screen p-10">
+        <div className="min-h-screen s">
             {/* Header Section */}
             <div className="mb-10">
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
@@ -82,6 +77,7 @@ const Purchase = () => {
                     />
                 ))}
             </div>
+
         </div>
     );
 };

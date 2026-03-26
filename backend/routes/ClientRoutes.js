@@ -12,21 +12,24 @@ router.post("/new", (req, res) => {
     email,
     address,
     gst_number,
+    state,
+    pincode,
+    contact_person, 
   } = req.body;
 
-  if (!customer_type || !customer_name || !phone || !email || !address) {
+  if (!customer_type || !customer_name || !phone || !email || !address || !pincode || !contact_person) {
     return res.status(400).json({ message: "Required fields missing" });
   }
 
   const sql = `
     INSERT INTO newclient
-    (customer_type, customer_name, phone, email, address, gst_number)
-    VALUES (?, ?, ?, ?, ?, ?)
+    (customer_type, customer_name, phone, email, address, gst_number, state, pincode, contact_person)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [customer_type, customer_name, phone, email, address, gst_number || null],
+    [customer_type, customer_name, phone, email, address, gst_number, state, pincode, contact_person],
     (err, result) => {
       if (err) {
         console.error("DB ERROR:", err);
@@ -47,7 +50,7 @@ router.get("/search", (req,res)=>{
   const search = `%${q}%`;
 
   const sql = `
-   SELECT id, customer_name, phone, email, address, gst_number FROM newclient
+   SELECT id, customer_name, phone, email, address, gst_number, state, pincode, contact_person FROM newclient
    WHERE customer_name Like ?
    OR phone Like ? OR gst_number Like ?
     ORDER BY customer_name ASC 
@@ -73,7 +76,10 @@ router.get("/all", (req, res) => {
       phone,
       email,
       address,
-      gst_number
+      gst_number,
+      state,
+      pincode,
+      contact_person
     FROM newclient
     ORDER BY id DESC
   `;
@@ -92,13 +98,13 @@ router.get("/all", (req, res) => {
 
 router.put("/update/:id", (req,res) =>{
   const {id} = req.params;
-  const { customer_name, phone, email, address, gst_number } = req.body;
+  const { customer_name, phone, email, address, gst_number, state, pincode, contact_person } = req.body;
 
-   const sql = `update newclient SET customer_name=?, phone=?, email=?, address=?, gst_number=? WHERE id=?`;
+   const sql = `update newclient SET customer_name=?, phone=?, email=?, address=?, gst_number=?, state=?, pincode=?, contact_person=? WHERE id=?`;
    
    db.query(
     sql,
-    [customer_name,phone,email,address,gst_number,id],
+    [customer_name,phone,email,address,gst_number,state,pincode,contact_person,id],
     (err) =>{
       if(err){
         console.log(err);

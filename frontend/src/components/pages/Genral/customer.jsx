@@ -12,7 +12,7 @@ const Customer = () =>{
      const[open,setopen] = useState(false)
 
 
-      // Fetch all data
+  // Fetch all data
   const fetchCustomers = async () => {
   const res = await fetch("http://localhost:3000/api/customers/all");
   const data = await res.json();
@@ -103,49 +103,68 @@ const editCustomer = (customer) => {
                     <table className="w-full border-collapse">
                          <thead>
                            <tr className=" text-left text-[12px] font-[400]  font-[Arial] text-[#6A7282] border-b">
-                              <th className="py-3 px-2">ID</th>
-                              <th>NAME</th>
-                               <th>PHONE</th>
-                                <th>TYPE</th>
-                                 <th>BALANCE</th>
-                                <th>ACTIONS</th>
+                              <th className="py-3 px-4">ID</th>
+                              <th className="py-3 px-4">NAME</th>
+                               <th className="py-3 px-4">PHONE</th>
+                                <th className="py-3 px-4">TYPE</th>
+                                 <th className="py-3 px-4">BALANCE</th>
+                                <th className="py-3 px-8 ">ACTIONS</th>
                            </tr>
                         </thead>
 
                            {/* body */}
                             <tbody>
-                               {customers.map((c,index)=>(
-                                 <tr key={c.id}  className="border-b text-[#101828] font-[Arial] text-[14px] font-[400] text-sm hover:bg-gray-50">
-                                     <td className="py-4"> CUST{String(index + 1).padStart(3, "0")}</td>
-                                     <td>{c.customer_name}</td>
-                                      <td>{c.phone}</td>
-                                       <td>
-                                        <span className={`px-3 py-1 rounded-full text-xs ${c.customer_type === "new"
-                                          ? "bg-gray-200 text-gray-700"
-                                          :"bg-black text-white"
-                                        }`}>
-                                          {c.customer_type === "new" ? "New" : "Existing"}
-                                        </span>
-                                        </td>
-                                      <td>₹0</td>
-                                       {/* Actions */}
+  {customers.map((c, index) => (
+    <tr key={c.id} className="border-b text-[#101828] text-sm hover:bg-gray-50">
 
-                                         <td className="flex gap-3 mt-4">
-                                          <Pencil
-                                       size={16}
-                                       className="cursor-pointer text-gray-600 hover:text-black"
-                                       onClick={() => editCustomer(c)}
-                                     />
-                                    <Trash2
-                                 size={16}
-                                className="cursor-pointer text-red-500"
-                                onClick={() => deleteCustomer(c.id)}
-                                />
-                             </td>
-                            </tr>
-                               ))}
-                               
-                            </tbody>
+      <td className="py-4 px-4">
+        CUST{String(index + 1).padStart(3, "0")}
+      </td>
+
+      <td className="py-4 px-4 font-medium">
+        {c.customer_name}
+      </td>
+
+      <td className="py-4 px-4">
+        {c.phone}
+      </td>
+
+      <td className="py-4 px-4">
+        <span
+          className={`px-3 py-1 rounded-full text-xs ${
+            c.customer_type === "new"
+              ? "bg-gray-200 text-gray-700"
+              : "bg-black text-white"
+          }`}
+        >
+          {c.customer_type === "new" ? "New" : "Existing"}
+        </span>
+      </td>
+
+      <td className="py-4 px-4">
+        ₹0
+      </td>
+
+      {/* ACTIONS */}
+      <td className="py-4 px-4">
+        <div className="flex justify-center gap-3 mr-7">
+          <Pencil
+            size={16}
+            className="cursor-pointer text-gray-600 hover:text-black"
+            onClick={() => editCustomer(c)}
+          />
+          <Trash2
+            size={16}
+            className="cursor-pointer text-red-500"
+            onClick={() => deleteCustomer(c.id)}
+          />
+        </div>
+      </td>
+
+    </tr>
+  ))}
+</tbody>
+
                     </table>
                </div>
 

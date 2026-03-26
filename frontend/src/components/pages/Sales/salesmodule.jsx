@@ -78,7 +78,7 @@ const SalesModule = () => {
     ];
 
     return (
-        <div className="min-h-screen pb-10">
+        <div className="min-h-screen pb-10 p-10">
             {/* Header Section */}
             <div className="mb-10">
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">

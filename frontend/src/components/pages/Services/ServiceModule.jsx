@@ -38,7 +38,7 @@ function ServiceModule() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 px-8 py-8">
+    <div className="min-h-screen p-10">
       {/* Header */}
       <h1 className="text-2xl font-semibold text-gray-900">
         Service Module

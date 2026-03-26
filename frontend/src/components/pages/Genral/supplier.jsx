@@ -1,5 +1,5 @@
 import React,{useState} from "react";
-import PCBMASTER from "../../forms/pcbmaster";
+import PCBMASTER from "../../forms/spare";
 import {Plus} from "lucide-react";
 
 const PCB = () =>{
