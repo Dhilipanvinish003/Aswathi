@@ -736,14 +736,23 @@ router.get("/report/filters", async (req, res) => {
                     s.invoice_date,
                     s.customer_name,
                     MAX(COALESCE(nc.gst_number, '')) AS gst_no,
-                    s.subtotal AS taxable_value,
+                    ROUND(COALESCE(NULLIF(s.subtotal + COALESCE(s.transport, 0) - COALESCE(s.discount, 0), 0), s.subtotal, 0), 2) AS taxable_value,
                     s.cgst AS cgst_amount,
                     s.sgst AS sgst_amount,
                     s.igst AS igst_amount,
                     s.grandtotal AS total_invoice_value,
-                    ROUND(CASE WHEN s.subtotal > 0 THEN (s.cgst / s.subtotal) * 100 ELSE 0 END, 2) AS cgst_percent,
-                    ROUND(CASE WHEN s.subtotal > 0 THEN (s.sgst / s.subtotal) * 100 ELSE 0 END, 2) AS sgst_percent,
-                    ROUND(CASE WHEN s.subtotal > 0 THEN (s.igst / s.subtotal) * 100 ELSE 0 END, 2) AS igst_percent,
+                    ROUND(CASE 
+                        WHEN (s.subtotal + COALESCE(s.transport, 0) - COALESCE(s.discount, 0)) > 0 AND s.cgst > 0 
+                        THEN (s.cgst / (s.subtotal + COALESCE(s.transport, 0) - COALESCE(s.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS cgst_percent,
+                    ROUND(CASE 
+                        WHEN (s.subtotal + COALESCE(s.transport, 0) - COALESCE(s.discount, 0)) > 0 AND s.sgst > 0 
+                        THEN (s.sgst / (s.subtotal + COALESCE(s.transport, 0) - COALESCE(s.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS sgst_percent,
+                    ROUND(CASE 
+                        WHEN (s.subtotal + COALESCE(s.transport, 0) - COALESCE(s.discount, 0)) > 0 AND s.igst > 0 
+                        THEN (s.igst / (s.subtotal + COALESCE(s.transport, 0) - COALESCE(s.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS igst_percent,
                     GROUP_CONCAT(DISTINCT si.hsn_number ORDER BY si.hsn_number SEPARATOR ', ') AS hsn_sac,
                     SUM(si.quantity) AS total_qty,
                     'Sales Invoice' AS invoice_type,
@@ -759,7 +768,7 @@ router.get("/report/filters", async (req, res) => {
                 LEFT JOIN salesinvoice_items si ON s.id = si.invoice_id
                 LEFT JOIN newclient nc ON s.customer_name = nc.customer_name
                 WHERE 1=1 ${siFilter}
-                GROUP BY s.id, s.invoice_no, s.invoice_date, s.customer_name, s.subtotal, s.cgst, s.sgst, s.igst, s.grandtotal
+                GROUP BY s.id, s.invoice_no, s.invoice_date, s.customer_name, s.subtotal, s.transport, s.discount, s.cgst, s.sgst, s.igst, s.grandtotal
 
                 UNION ALL
 
@@ -768,14 +777,23 @@ router.get("/report/filters", async (req, res) => {
                     sv.invoice_date,
                     sv.customer_name,
                     MAX(COALESCE(nc.gst_number, '')) AS gst_no,
-                    COALESCE(SUM(svi.amount), 0) AS taxable_value,
+                    ROUND(COALESCE(NULLIF(COALESCE(SUM(svi.amount), 0) + COALESCE(sv.transport, 0) - COALESCE(sv.discount, 0), 0), SUM(svi.amount), 0), 2) AS taxable_value,
                     sv.cgst AS cgst_amount,
                     sv.sgst AS sgst_amount,
                     sv.igst AS igst_amount,
                     sv.grand_total AS total_invoice_value,
-                    ROUND(CASE WHEN COALESCE(SUM(svi.amount), 0) > 0 THEN (sv.cgst / COALESCE(SUM(svi.amount), 0)) * 100 ELSE 0 END, 2) AS cgst_percent,
-                    ROUND(CASE WHEN COALESCE(SUM(svi.amount), 0) > 0 THEN (sv.sgst / COALESCE(SUM(svi.amount), 0)) * 100 ELSE 0 END, 2) AS sgst_percent,
-                    ROUND(CASE WHEN COALESCE(SUM(svi.amount), 0) > 0 THEN (sv.igst / COALESCE(SUM(svi.amount), 0)) * 100 ELSE 0 END, 2) AS igst_percent,
+                    ROUND(CASE 
+                        WHEN (COALESCE(SUM(svi.amount), 0) + COALESCE(sv.transport, 0) - COALESCE(sv.discount, 0)) > 0 AND sv.cgst > 0 
+                        THEN (sv.cgst / (COALESCE(SUM(svi.amount), 0) + COALESCE(sv.transport, 0) - COALESCE(sv.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS cgst_percent,
+                    ROUND(CASE 
+                        WHEN (COALESCE(SUM(svi.amount), 0) + COALESCE(sv.transport, 0) - COALESCE(sv.discount, 0)) > 0 AND sv.sgst > 0 
+                        THEN (sv.sgst / (COALESCE(SUM(svi.amount), 0) + COALESCE(sv.transport, 0) - COALESCE(sv.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS sgst_percent,
+                    ROUND(CASE 
+                        WHEN (COALESCE(SUM(svi.amount), 0) + COALESCE(sv.transport, 0) - COALESCE(sv.discount, 0)) > 0 AND sv.igst > 0 
+                        THEN (sv.igst / (COALESCE(SUM(svi.amount), 0) + COALESCE(sv.transport, 0) - COALESCE(sv.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS igst_percent,
                     GROUP_CONCAT(DISTINCT svi.hsn_number ORDER BY svi.hsn_number SEPARATOR ', ') AS hsn_sac,
                     SUM(svi.quantity) AS total_qty,
                     'Service Invoice' AS invoice_type,
@@ -791,7 +809,7 @@ router.get("/report/filters", async (req, res) => {
                 LEFT JOIN service_invoice_items svi ON sv.id = svi.invoice_id
                 LEFT JOIN newclient nc ON sv.customer_name = nc.customer_name
                 WHERE 1=1 ${svFilter}
-                GROUP BY sv.id, sv.invoice_no, sv.invoice_date, sv.customer_name, sv.cgst, sv.sgst, sv.igst, sv.grand_total
+                GROUP BY sv.id, sv.invoice_no, sv.invoice_date, sv.customer_name, sv.transport, sv.discount, sv.cgst, sv.sgst, sv.igst, sv.grand_total
 
                 UNION ALL
 
@@ -800,14 +818,23 @@ router.get("/report/filters", async (req, res) => {
                     d.invoice_date,
                     d.customer_name,
                     MAX(COALESCE(nc.gst_number, '')) AS gst_no,
-                    d.subtotal AS taxable_value,
+                    ROUND(COALESCE(NULLIF(d.subtotal + COALESCE(d.transport, 0) - COALESCE(d.discount, 0), 0), d.subtotal, 0), 2) AS taxable_value,
                     d.cgst AS cgst_amount,
                     d.sgst AS sgst_amount,
                     d.igst AS igst_amount,
                     d.grandtotal AS total_invoice_value,
-                    ROUND(CASE WHEN d.subtotal > 0 THEN (d.cgst / d.subtotal) * 100 ELSE 0 END, 2) AS cgst_percent,
-                    ROUND(CASE WHEN d.subtotal > 0 THEN (d.sgst / d.subtotal) * 100 ELSE 0 END, 2) AS sgst_percent,
-                    ROUND(CASE WHEN d.subtotal > 0 THEN (d.igst / d.subtotal) * 100 ELSE 0 END, 2) AS igst_percent,
+                    ROUND(CASE 
+                        WHEN (d.subtotal + COALESCE(d.transport, 0) - COALESCE(d.discount, 0)) > 0 AND d.cgst > 0 
+                        THEN (d.cgst / (d.subtotal + COALESCE(d.transport, 0) - COALESCE(d.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS cgst_percent,
+                    ROUND(CASE 
+                        WHEN (d.subtotal + COALESCE(d.transport, 0) - COALESCE(d.discount, 0)) > 0 AND d.sgst > 0 
+                        THEN (d.sgst / (d.subtotal + COALESCE(d.transport, 0) - COALESCE(d.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS sgst_percent,
+                    ROUND(CASE 
+                        WHEN (d.subtotal + COALESCE(d.transport, 0) - COALESCE(d.discount, 0)) > 0 AND d.igst > 0 
+                        THEN (d.igst / (d.subtotal + COALESCE(d.transport, 0) - COALESCE(d.discount, 0))) * 100 
+                        ELSE 0 END, 2) AS igst_percent,
                     GROUP_CONCAT(DISTINCT ii.hsn_number ORDER BY ii.hsn_number SEPARATOR ', ') AS hsn_sac,
                     SUM(ii.quantity) AS total_qty,
                     'Direct Invoice' AS invoice_type,
@@ -823,7 +850,7 @@ router.get("/report/filters", async (req, res) => {
                 LEFT JOIN invoice_items ii ON d.id = ii.invoice_id
                 LEFT JOIN newclient nc ON d.customer_name = nc.customer_name
                 WHERE 1=1 ${diFilter}
-                GROUP BY d.id, d.invoice_no, d.invoice_date, d.customer_name, d.subtotal, d.cgst, d.sgst, d.igst, d.grandtotal
+                GROUP BY d.id, d.invoice_no, d.invoice_date, d.customer_name, d.subtotal, d.transport, d.discount, d.cgst, d.sgst, d.igst, d.grandtotal
             ) combined
             ORDER BY invoice_date ASC, invoice_no ASC
         `;
